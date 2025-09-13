@@ -1,0 +1,39 @@
+{
+  "name": "quikpay",
+  "version": "1.0.0",
+  "description": "QuikPay - Lisk L2 Payment dApp with Smart Contracts and Frontend",
+  "private": true,
+  "workspaces": [
+    "frontend/ui",
+    "frontend/web",
+    "frontend/mobile"
+  ],
+  "scripts": {
+    "install:all": "npm install && npm run install:contract",
+    "install:contract": "cd contract && npm install",
+    "install:frontend": "npm install",
+    "build:ui": "cd frontend/ui && npm run build",
+    "build:web": "cd frontend/web && npm run build",
+    "dev:web": "cd frontend/web && npm run dev",
+    "dev:mobile": "cd frontend/mobile && npm run dev",
+    "deploy:contract": "cd contract && npm run deploy",
+    "test:contract": "cd contract && npm run test"
+  },
+  "keywords": [
+    "blockchain",
+    "lisk",
+    "l2",
+    "payment",
+    "web3",
+    "smart-contracts",
+    "react",
+    "nextjs",
+    "react-native"
+  ],
+  "author": "QuikPay Team",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "typescript": "^5.3.3"
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "name": "contract",
+  "version": "1.0.0",
+  "description": "QuikPay Smart Contract - Hardhat project",
+  "private": true,
+  "scripts": {
+    "build": "npx hardhat compile",
+    "test": "npx hardhat test",
+    "deploy": "npx hardhat run scripts/deploy.js --network arbitrumSepolia",
+    "deploy:testnet": "npx hardhat run scripts/deploy.js --network arbitrumSepolia",
+    "deploy:mainnet": "npx hardhat run scripts/deploy.js --network arbitrumOne",
+    "clean": "npx hardhat clean",
+    "verify": "npx hardhat verify"
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^4.0.0",
+    "@openzeppelin/contracts": "^5.0.0",
+    "hardhat": "^2.19.0",
+    "ethers": "^6.0.0",
+    "dotenv": "^16.0.0"
+  }
+} 
