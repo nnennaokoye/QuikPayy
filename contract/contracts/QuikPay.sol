@@ -34,6 +34,10 @@ contract QuikPay is ReentrancyGuard {
         address payer;
     }
 
+    // Fee configuration
+    address public constant FEE_RECIPIENT = 0x167142915AD0fAADD84d9741eC253B82aB8625cd;
+    uint16 public constant FEE_BPS = 3; // 0.03%
+
 
     /**
      * @dev Pay dynamically in ERC20 using merchant auth + payer EIP-2612 permit.
@@ -63,10 +67,22 @@ contract QuikPay is ReentrancyGuard {
             permit.s
         );
 
-        // Pull funds from payer to merchant (receiver)
+        // Pull funds from payer to this contract, then split to fee recipient and merchant
         IERC20 token = IERC20(permit.token);
-        bool success = token.transferFrom(permit.owner, auth.receiver, permit.value);
-        if (!success) {
+        bool pulled = token.transferFrom(permit.owner, address(this), permit.value);
+        if (!pulled) {
+            revert TransferFailed();
+        }
+
+        uint256 fee = (permit.value * FEE_BPS) / 10000;
+        uint256 toMerchant = permit.value - fee;
+
+        bool feeSent = token.transfer(FEE_RECIPIENT, fee);
+        if (!feeSent) {
+            revert TransferFailed();
+        }
+        bool merchantSent = token.transfer(auth.receiver, toMerchant);
+        if (!merchantSent) {
             revert TransferFailed();
         }
 
@@ -231,15 +247,26 @@ contract QuikPay is ReentrancyGuard {
             revert BillAlreadyPaid();
         }
 
-        // ERC20 transfer from the authorizer's balance
+        // ERC20 transfer: pull to contract then split
         IERC20 token = IERC20(bill.token);
         if (token.balanceOf(authorization.authorizer) < bill.amount) {
             revert InsufficientBalance();
         }
-        
-        // Transfer from authorizer to receiver
-        bool success = token.transferFrom(authorization.authorizer, bill.receiver, bill.amount);
-        if (!success) {
+
+        bool pulled = token.transferFrom(authorization.authorizer, address(this), bill.amount);
+        if (!pulled) {
+            revert TransferFailed();
+        }
+
+        uint256 fee = (bill.amount * FEE_BPS) / 10000;
+        uint256 toMerchant = bill.amount - fee;
+
+        bool feeSent = token.transfer(FEE_RECIPIENT, fee);
+        if (!feeSent) {
+            revert TransferFailed();
+        }
+        bool merchantSent = token.transfer(bill.receiver, toMerchant);
+        if (!merchantSent) {
             revert TransferFailed();
         }
 
@@ -273,14 +300,26 @@ contract QuikPay is ReentrancyGuard {
             revert BillAlreadyPaid();
         }
 
-        // ERC20 payment only
+        // ERC20 payment only: pull to contract then split
         IERC20 token = IERC20(bill.token);
         if (token.balanceOf(payer) < bill.amount) {
             revert InsufficientBalance();
         }
-        
-        bool success = token.transferFrom(payer, bill.receiver, bill.amount);
-        if (!success) {
+
+        bool pulled = token.transferFrom(payer, address(this), bill.amount);
+        if (!pulled) {
+            revert TransferFailed();
+        }
+
+        uint256 fee = (bill.amount * FEE_BPS) / 10000;
+        uint256 toMerchant = bill.amount - fee;
+
+        bool feeSent = token.transfer(FEE_RECIPIENT, fee);
+        if (!feeSent) {
+            revert TransferFailed();
+        }
+        bool merchantSent = token.transfer(bill.receiver, toMerchant);
+        if (!merchantSent) {
             revert TransferFailed();
         }
 
