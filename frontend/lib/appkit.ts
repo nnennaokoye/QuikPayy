@@ -39,6 +39,20 @@ export const appKit = createAppKit({
     } as any
   ],
   projectId,
+  features: {
+    email: true,
+    socials: [
+      'google',
+      'x',
+      'github',
+      'discord',
+      'apple',
+      'facebook',
+      'farcaster'
+    ],
+    emailShowWallets: true
+  },
+  allWallets: 'SHOW',
   themeMode: 'dark',
   themeVariables: {
     '--w3m-accent': '#4F46E5',
