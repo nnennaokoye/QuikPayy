@@ -26,9 +26,11 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Server misconfigured: missing FAUCET_PK' }, { status: 500 })
     }
 
-    // Basic per-address cooldown
+    // Basic per-address cooldown. Mark as claimed immediately after passing the check
+    // to avoid multiple successful claims from rapid double-clicks or concurrent requests.
     const now = Date.now()
-    const last = lastClaimByAddress.get(address.toLowerCase()) || 0
+    const key = address.toLowerCase()
+    const last = lastClaimByAddress.get(key) || 0
     if (now - last < CLAIM_COOLDOWN_MS) {
       const remainingMs = CLAIM_COOLDOWN_MS - (now - last)
       const remainingHours = Math.ceil(remainingMs / (60 * 60 * 1000))
@@ -37,6 +39,9 @@ export async function POST(request: Request) {
         { status: 429 },
       )
     }
+
+    // Reserve this claim window up-front
+    lastClaimByAddress.set(key, now)
 
     const account = privateKeyToAccount(pk)
     const rpcUrl =
@@ -97,8 +102,6 @@ export async function POST(request: Request) {
       functionName: 'mint',
       args: [address as `0x${string}`, CLAIM_AMOUNT_USDC],
     })
-
-    lastClaimByAddress.set(address.toLowerCase(), Date.now())
 
     return NextResponse.json({ hash })
   } catch (e: any) {
