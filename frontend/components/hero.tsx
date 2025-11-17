@@ -1,10 +1,69 @@
 "use client"
 
+import { useState } from "react"
+import { useAccount } from "wagmi"
+import { useAppKit } from "@reown/appkit/react"
+import { toast } from "@/hooks/use-toast"
 import { Button } from "@/components/ui/button"
 import { Zap, ArrowRight } from "lucide-react"
 import Link from "next/link"
 
 export function Hero() {
+  const { address, isConnected } = useAccount()
+  const { open } = useAppKit()
+  const [isClaiming, setIsClaiming] = useState(false)
+  const [claimState, setClaimState] = useState<"idle" | "claimed" | "cooldown">("idle")
+
+  const handleClaim = async () => {
+    if (!isConnected || !address) {
+      open()
+      return
+    }
+
+    try {
+      setIsClaiming(true)
+      const res = await fetch("/api/claim-usdc", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ address }),
+      })
+
+      const data = await res.json().catch(() => ({}))
+
+      if (!res.ok) {
+        if (res.status === 429) {
+          setClaimState("cooldown")
+        }
+        toast({
+          title: "Claim failed",
+          description: data?.error || "Unable to claim test USDC.",
+          variant: "destructive",
+        })
+        return
+      }
+
+      setClaimState("claimed")
+      setTimeout(() => {
+        setClaimState("idle")
+      }, 3000)
+
+      toast({
+        title: "Test USDC claimed",
+        description: "We sent 50 test USDC (mUSDC) to your wallet on Lisk Sepolia.",
+      })
+    } catch (err: any) {
+      toast({
+        title: "Claim failed",
+        description: err?.message || "Unexpected error while claiming test USDC.",
+        variant: "destructive",
+      })
+    } finally {
+      setIsClaiming(false)
+    }
+  }
+
   return (
     <section className="pt-24 pb-16 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
@@ -44,6 +103,21 @@ export function Hero() {
                 For Merchants
               </Button>
             </Link>
+            <Button
+              size="lg"
+              variant="outline"
+              disabled={isClaiming || claimState === "cooldown"}
+              onClick={handleClaim}
+              className="border-primary/40 text-primary hover:bg-primary/10 transition-all duration-200 text-lg px-8 w-full sm:w-auto"
+            >
+              {claimState === "claimed"
+                ? "Claimed"
+                : claimState === "cooldown"
+                  ? "Come back in 24h"
+                  : isClaiming
+                    ? "Claiming..."
+                    : "Claim Test USDC"}
+            </Button>
           </div>
 
           <div className="flex items-center justify-center gap-8 mt-12 text-sm text-muted-foreground">
