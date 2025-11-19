@@ -40,6 +40,7 @@ contract UsdcFaucet is Ownable {
      * @dev Claim faucet tokens. Can be called by any address, but limited
      *      by claimCooldown between successful claims.
      */
+     
     function claim() external {
         uint256 last = lastClaimAt[msg.sender];
         uint256 nowTs = block.timestamp;
