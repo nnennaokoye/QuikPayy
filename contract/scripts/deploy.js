@@ -46,13 +46,13 @@ async function main() {
   });
   const gasLimit = (gasEstimate * 105n) / 100n; // Add 5% buffer
   
-  console.log("⛽ Estimated gas:", gasEstimate.toString());
-  console.log("⛽ Gas limit (with 5% buffer):", gasLimit.toString());
+  console.log(" Estimated gas:", gasEstimate.toString());
+  console.log(" Gas limit (with 5% buffer):", gasLimit.toString());
   
   // Calculate total cost
   const maxFeePerGas = feeData.maxFeePerGas || feeData.gasPrice || 0n;
   const totalCost = gasLimit * maxFeePerGas;
-  console.log("💸 Estimated total cost:", ethers.formatEther(totalCost), "ETH");
+  console.log(" Estimated total cost:", ethers.formatEther(totalCost), "ETH");
   
   // Deploy with EIP-1559 transaction
   const deployOptions = {
@@ -63,10 +63,10 @@ async function main() {
   if (feeData.maxFeePerGas && feeData.maxPriorityFeePerGas) {
     deployOptions.maxFeePerGas = (feeData.maxFeePerGas * 110n) / 100n; // Add 10% buffer
     deployOptions.maxPriorityFeePerGas = (feeData.maxPriorityFeePerGas * 110n) / 100n;
-    console.log("🔥 Using EIP-1559 transaction");
+    console.log(" Using EIP-1559 transaction");
   } else if (feeData.gasPrice) {
     deployOptions.gasPrice = (feeData.gasPrice * 110n) / 100n; // Add 10% buffer
-    console.log("⚡ Using legacy transaction");
+    console.log(" Using legacy transaction");
   }
   
   const quikPay = await QuikPay.deploy(deployOptions);
@@ -75,9 +75,9 @@ async function main() {
   await quikPay.waitForDeployment();
   const contractAddress = await quikPay.getAddress();
   
-  console.log("✅ QuikPay deployed successfully!");
-  console.log("📍 Contract address:", contractAddress);
-  console.log("🔍 Block explorer:", getExplorerUrl(network.chainId, contractAddress));
+  console.log(" QuikPay deployed successfully!");
+  console.log(" Contract address:", contractAddress);
+  console.log(" Block explorer:", getExplorerUrl(network.chainId, contractAddress));
 
   // Prepare deployment info
   const deploymentInfo = {
@@ -97,20 +97,20 @@ async function main() {
     fs.mkdirSync(outDir, { recursive: true });
     const outPath = path.join(outDir, `${network.name || 'liskSepolia'}-latest.json`);
     fs.writeFileSync(outPath, JSON.stringify(deploymentInfo, null, 2));
-    console.log("📝 Saved deployment info to:", outPath);
+    console.log(" Saved deployment info to:", outPath);
   } catch (e) {
-    console.log("⚠️  Failed to write deployment info:", e?.message || e);
+    console.log("  Failed to write deployment info:", e?.message || e);
   }
 
   console.log("\nNext:");
   console.log(`  npx hardhat verify --network ${network.name || 'liskSepolia'} ${contractAddress}`);
   
-  console.log("\n📋 Deployment Summary:");
+  console.log("\n Deployment Summary:");
   console.log(JSON.stringify(deploymentInfo, null, 2));
   
   // Verify contract (optional)
   if (network.chainId === 4202n || network.chainId === 1135n) {
-    console.log("\n⏳ Waiting 30 seconds before verification...");
+    console.log("\n Waiting 30 seconds before verification...");
     await new Promise(resolve => setTimeout(resolve, 30000));
     
     try {
@@ -118,9 +118,9 @@ async function main() {
         address: contractAddress,
         constructorArguments: [],
       });
-      console.log("✅ Contract verified successfully!");
+      console.log(" Contract verified successfully!");
     } catch (error) {
-      console.log("⚠️  Verification failed:", error.message);
+      console.log("  Verification failed:", error.message);
     }
   }
 }
@@ -139,6 +139,6 @@ function getExplorerUrl(chainId, address) {
 main()
   .then(() => process.exit(0))
   .catch((error) => {
-    console.error("❌ Deployment failed:", error);
+    console.error(" Deployment failed:", error);
     process.exit(1);
   }); 
