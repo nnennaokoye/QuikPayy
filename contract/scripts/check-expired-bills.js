@@ -36,10 +36,10 @@ async function main() {
   console.log(`Has expired bills: ${hasExpired}`);
 
   if (hasExpired) {
-    console.log("\n💡 You can expire these bills by running:");
+    console.log("\n You can expire these bills by running:");
     console.log(`npx hardhat run scripts/expire-bills.js --network <network> -- ${contractAddr} ${receiver} <maxToExpire>`);
   } else {
-    console.log("\n✅ No expired bills found for this receiver.");
+    console.log("\n No expired bills found for this receiver.");
   }
 
   // Get all bills for this receiver to show details
@@ -62,7 +62,7 @@ async function main() {
       console.log(`     Paid: ${bill.paid}`);
       console.log(`     Canceled: ${bill.canceled}`);
       console.log(`     Created: ${new Date(Number(bill.createdAt) * 1000).toISOString()}`);
-      console.log(`     Expired: ${isExpired ? '🔴 YES' : '🟢 NO'}`);
+      console.log(`     Expired: ${isExpired ? ' YES' : ' NO'}`);
       console.log('');
     }
 
