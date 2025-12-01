@@ -10,7 +10,6 @@ import "@openzeppelin/contracts/access/Ownable.sol";
  */
 contract MockWETH is ERC20Permit, Ownable {
     constructor() ERC20("Mock WETH", "mWETH") ERC20Permit("Mock WETH") Ownable(msg.sender) {
-        // Mint initial supply to deployer for convenience (1,000,000 mWETH with 18 decimals)
         _mint(msg.sender, 1_000_000 * 10 ** decimals());
     }
 

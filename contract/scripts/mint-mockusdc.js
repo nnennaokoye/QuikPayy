@@ -16,7 +16,6 @@ async function main() {
   console.log(" Network:", net.name, `(${net.chainId})`)
   console.log(" Sender:", deployer)
 
-  // Inputs
   const tokenAddress = getArg('token', getArg('token_address', null))
   if (!tokenAddress) {
     throw new Error('Missing --token <address> (or TOKEN_ADDRESS env) for MockUSDC')
