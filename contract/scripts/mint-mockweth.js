@@ -63,7 +63,6 @@ async function main() {
       }
     }
     
-    // Small delay to avoid overwhelming the network
     await new Promise(resolve => setTimeout(resolve, 1000))
   }
   
